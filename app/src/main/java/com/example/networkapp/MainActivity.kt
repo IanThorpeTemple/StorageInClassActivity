@@ -1,5 +1,6 @@
 package com.example.networkapp
 
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -14,6 +15,8 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.squareup.picasso.Picasso
 import org.json.JSONObject
+import java.io.File
+import java.io.FileOutputStream
 
 // TODO (1: Fix any bugs)
 // TODO (2: Add function saveComic(...) to save comic info when downloaded
@@ -28,6 +31,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var showButton: Button
     lateinit var comicImageView: ImageView
 
+    private val internalFileName = "my_file"
+    private lateinit var file: File
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -39,6 +45,8 @@ class MainActivity : AppCompatActivity() {
         numberEditText = findViewById<EditText>(R.id.comicNumberEditText)
         showButton = findViewById<Button>(R.id.showComicButton)
         comicImageView = findViewById<ImageView>(R.id.comicImageView)
+
+        file = File(filesDir, internalFileName)
 
         showButton.setOnClickListener {
             downloadComic(numberEditText.text.toString())
@@ -62,11 +70,18 @@ class MainActivity : AppCompatActivity() {
         titleTextView.text = comicObject.getString("title")
         descriptionTextView.text = comicObject.getString("alt")
         Picasso.get().load(comicObject.getString("img")).into(comicImageView)
+        saveComic(comicObject)
     }
 
     // Implement this function
     private fun saveComic(comicObject: JSONObject) {
-
+        try{
+            val outputStream = FileOutputStream(file)
+            outputStream.write(comicObject.toString().toByteArray())
+            outputStream.close()
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
     }
 
 
